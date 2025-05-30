@@ -45,3 +45,52 @@ function crearEventoCalendar (datos){
     );
 
 }
+//traer barberos
+function getBarberos() {
+    const hoja = SpreadsheetApp.getActive().getSheetByName("Barberos");
+    const data = hoja.getRange(2, 1, hoja.getLastRow() -1, 1).getValues();
+    return data.flat(); // Ejemplo: ["Pedro", "Juan", etc...]
+}
+
+//Servicios
+function getServicios() {
+    const hoja = SpreadsheetApp.getActive().getSheetByName("Servicios");
+    const data = hoja.getRange(2, 1, hoja.getLastRow() -1, 2).getValues();
+    return data.map(row => ({nombre: row[0], precio: row[1] }));
+}
+
+function getDisponibilidad(barbero, fecha) {
+    const hojaBarberos = SpreadsheetApp.getActive().getSheetByName("Barberos");
+    const hojaHorarios = SpreadsheetApp.getActive().getSheetByName("Horarios");
+    const hojaReservas = SpreadsheetApp.getActive().getSheetByName("Reservas");
+
+    //Obtener datos del Barbero
+    const barberos = hojaBarberos.getDataRange().getValues();
+    const fila = barberos.find(row => row[0] === barbero);
+    if (!fila) return [];
+
+    const jornadas = ["Mañana", "Tarde", "Noche"];
+    let jornadasDisponibles = [];
+
+    // Detectar qué Jornadas estan disponibles
+    for (let i = 0; i < jornadas.length; i++) {
+        if (fila[i + 1]?.toLowerCase() === "disponible") {
+            jornadasDisponibles.push(jornadas[i]);
+        }
+    }
+
+    //Obtener todos los horarios disponibles según las jornadas
+    const datosHorarios = hojaHorarios.getDataRange().getValues();
+    let posiblesHoras = datosHorarios
+        .filter(row => jornadasDisponibles.includes(row[0]))
+        .map(row => row[1].toString().padStart(5, '0')); // formato Hora: HH:MM
+
+    //Obtener reservas existentes
+    const reservas = hojaReservas.getDataRange().getValues();
+    const horasOcupadas = reservas
+        .filter(r => r[1] === fecha && r[4] === barbero)
+        .map(r => r[2].toString().padStart(5, '0'));
+    
+    //Retornar solo horarios libres
+    return posiblesHoras.filter(hora => !horasOcupadas.includes(hora));
+}
