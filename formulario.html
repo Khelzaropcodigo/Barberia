@@ -1,9 +1,396 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <base target="_top">
-  </head>
-  <body>
-    <h1> Mi Pagina de Barberos </h1>
-  </body>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserva tu Cita</title>
+  <style>
+    :root {
+      --primary: #1a1a2e;
+      --secondary: #16213e;
+      --accent: #e94560;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --success: #38b000;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    body {
+      background-color: #f5f5f5;
+      color: var(--primary);
+      line-height: 1.6;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: var(--accent);
+    }
+    
+    h2 {
+      color: var(--primary);
+      font-size: 28px;
+      margin-bottom: 30px;
+      font-weight: 600;
+      text-align: center;
+      position: relative;
+    }
+    
+    h2::after {
+      content: "✂️";
+      font-size: 24px;
+      display: inline-block;
+      margin-left: 10px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--secondary);
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.2);
+    }
+    
+    input:disabled, select:disabled {
+      background-color: #f8f9fa;
+      cursor: not-allowed;
+    }
+    
+    input[type="date"] {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 30px;
+    }
+    
+    .btn:hover {
+      background-color: #d63855;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(233, 69, 96, 0.15);
+    }
+    
+    .alert {
+      padding: 15px;
+      margin-top: 25px;
+      border-radius: 6px;
+      font-weight: 500;
+      text-align: center;
+      display: none;
+    }
+    
+    .alert-success {
+      background-color: rgba(56, 176, 0, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(56, 176, 0, 0.3);
+    }
+    
+    .alert-error {
+      background-color: rgba(233, 69, 96, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(233, 69, 96, 0.3);
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .input-group {
+      position: relative;
+    }
+    
+    .price-display {
+      background-color: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 12px 15px;
+      width: 100%;
+      font-weight: 500;
+      color: var(--primary);
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .form-col {
+      flex: 1;
+    }
+    
+    @media (max-width: 576px) {
+      .container {
+        padding: 25px;
+      }
+      
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Reserva tu Cita</h2>
+    
+    <form id="reservaForm">
+      <div class="form-group">
+        <label for="nombre">Nombre Completo</label>
+        <input type="text" id="nombre" placeholder="Tu nombre" required>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="barbero">Barbero</label>
+            <select id="barbero" required>
+              <option value="">Selecciona un barbero</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-col">
+          <div class="form-group">
+            <label for="servicio">Servicio</label>
+            <select id="servicio" required>
+              <option value="">Selecciona un servicio</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="precio">Precio</label>
+        <div class="price-display" id="precio">$0.00</div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" required>
+          </div>
+        </div>
+        
+        <div class="form-col">
+          <div class="form-group">
+            <label for="hora">Hora</label>
+            <select id="hora" required>
+              <option value="">Seleccione fecha y barbero</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <button type="submit" class="btn" id="submitBtn">
+        <span>Confirmar Reserva</span>
+      </button>
+    </form>
+    
+    <div id="mensaje" class="alert"></div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      google.script.run.withSuccessHandler(cargarBarberos).getBarberos();
+      google.script.run.withSuccessHandler(cargarServicios).getServicios();
+      
+      // Establecer fecha mínima como hoy
+      const hoy = new Date().toISOString().split('T')[0];
+      document.getElementById('fecha').min = hoy;
+    });
+
+    function cargarBarberos(barberos) {
+      const select = document.getElementById('barbero');
+      select.innerHTML = '<option value="">Selecciona un barbero</option>';
+      
+      barberos.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.text = b;
+        select.appendChild(opt);
+      });
+    }
+
+    function cargarServicios(servicios) {
+      const select = document.getElementById('servicio');
+      select.innerHTML = '<option value="">Selecciona un servicio</option>';
+      
+      servicios.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.nombre;
+        opt.text = s.nombre;
+        select.appendChild(opt);
+      });
+
+      select.addEventListener('change', () => {
+        const precioElement = document.getElementById('precio');
+        const selectedService = servicios.find(s => s.nombre === select.value);
+        
+        if (selectedService) {
+          precioElement.textContent = `$${selectedService.precio}`;
+          precioElement.classList.add('has-value');
+        } else {
+          precioElement.textContent = '$0.00';
+          precioElement.classList.remove('has-value');
+        }
+      });
+    }
+
+    function cargarHorasDisponibles() {
+      const barbero = document.getElementById('barbero').value;
+      const fecha = document.getElementById('fecha').value;
+      const horaSelect = document.getElementById('hora');
+
+      // Reset
+      horaSelect.innerHTML = '<option value="">Cargando horarios...</option>';
+      horaSelect.disabled = true;
+
+      if (barbero && fecha) {
+        google.script.run
+          .withSuccessHandler(function(horas) {
+            horaSelect.disabled = false;
+            horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+            
+            if (horas.length === 0) {
+              horaSelect.innerHTML = '<option value="">Sin disponibilidad</option>';
+              return;
+            }
+            
+            horas.forEach(h => {
+              const op = document.createElement('option');
+              op.value = h;
+              op.textContent = h;
+              horaSelect.appendChild(op);
+            });
+          })
+          .getDisponibilidad(barbero, fecha);
+      } else {
+        horaSelect.innerHTML = '<option value="">Seleccione barbero y fecha</option>';
+        horaSelect.disabled = true;
+      }
+    }
+
+    document.getElementById("fecha").addEventListener("change", cargarHorasDisponibles);
+    document.getElementById("barbero").addEventListener("change", cargarHorasDisponibles);
+
+    document.getElementById("reservaForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      
+      // Cambiar el botón a estado de carga
+      const submitBtn = document.getElementById("submitBtn");
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<div class="loading"></div> Procesando...';
+      submitBtn.disabled = true;
+      
+      // Ocultar mensaje anterior
+      document.getElementById("mensaje").style.display = 'none';
+      
+      const datos = {
+        nombre: document.getElementById("nombre").value,
+        barbero: document.getElementById("barbero").value,
+        servicio: document.getElementById("servicio").value,
+        precio: document.getElementById("precio").textContent.replace('$', ''),
+        fecha: document.getElementById("fecha").value,
+        hora: document.getElementById("hora").value
+      };
+
+      google.script.run
+        .withSuccessHandler(function(msg) {
+          // Mostrar mensaje de éxito
+          const mensajeEl = document.getElementById("mensaje");
+          mensajeEl.textContent = msg;
+          mensajeEl.className = "alert alert-success";
+          mensajeEl.style.display = 'block';
+          
+          // Resetear formulario
+          document.getElementById("reservaForm").reset();
+          document.getElementById("precio").textContent = '$0.00';
+          
+          // Restaurar botón
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
+          
+          // Scroll al mensaje
+          mensajeEl.scrollIntoView({ behavior: 'smooth' });
+        })
+        .withFailureHandler(function(error) {
+          // Mostrar error
+          const mensajeEl = document.getElementById("mensaje");
+          mensajeEl.textContent = "Error: " + error;
+          mensajeEl.className = "alert alert-error";
+          mensajeEl.style.display = 'block';
+          
+          // Restaurar botón
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
+        })
+        .procesarReservaExtendida(datos);
+    });
+  </script>
+</body>
 </html>
