@@ -94,3 +94,48 @@ function getDisponibilidad(barbero, fecha) {
     //Retornar solo horarios libres
     return posiblesHoras.filter(hora => !horasOcupadas.includes(hora));
 }
+
+function procesarReservaExtendida(datos) {
+    const hoja = SpreadsheetApp.getActive().getSheetByName("Reservas");
+    const fecha = datos.fecha;
+    const hora = datos.hora.padStart(5, '0'); // formato de hora HH:MM
+    const barbero = datos.barbero;
+
+    //Revalidados disponibilidad desde la hoja
+    const reservas = hoja.getDataRange().getValues();
+    const conflicto = reservas.some(r =>
+        r[1] === fecha && r[2].padStart(5, '0') === hora && r[4] === barbero
+    );
+
+    if  (conflicto) {
+        return `Este horario ya fue reservado por otro Cliente.`;
+    }
+
+    hoja.appendRow([
+        datos.nombre,
+        fecha,
+        hora,
+        datos.servicio,
+        barbero,
+        parseFloat(datos.precio),
+        "Pendiente"
+    ]);
+
+    //Evento en Google Calendar
+    const calendar = CalendarApp.getDefaultCalendar();
+    const inicio = new Date(`${fecha}T${hora}`);
+    const fin = new Date(inicio.getTime() + 30 * 60000);
+    calendar.createEvent(
+        `Corte: ${datos.servicio} - ${datos.nombre}`,
+        inicio,
+        fin,
+        {
+            description: `Barbero: ${barbero}`,
+            location: "Barberia (Direccion)"
+        }
+    );
+
+    return "¡Cita resgistrada correctamente, te esperamos!";
+    
+}
+
